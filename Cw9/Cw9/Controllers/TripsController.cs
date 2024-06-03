@@ -56,6 +56,36 @@ public class TripsController : ControllerBase
         {
             return BadRequest($"Client with pesel={find.Pesel} already exists");
         }
-        var isSignedUp=
+
+        var trip = await _context.Trips.FindAsync(idTrip);
+        var isSignedUp = trip.ClientTrips.Select(ct => ct.IdClientNavigation)
+            .Where(c => clientDto.Pesel == c.Pesel).ToList().Any();
+        if (isSignedUp)
+        {
+            return BadRequest($"client with pesel={clientDto.Pesel} already sighed up");
+            
+        }
+
+        var isFromFuture = trip.DateFrom > DateTime.Now;
+        if (!isFromFuture)
+        {
+            return BadRequest("DateFrom is in the past");
+        }
+
+        var idC = _context.Clients.Count() + 1;
+        _context.Clients.Add(new Client
+        {
+            IdClient = idC,
+            Email = clientDto.Email,
+            FirstName = clientDto.FirstName,
+            LastName = clientDto.LastName,
+            Pesel = clientDto.Pesel,
+            Telephone = clientDto.Telephone,
+
+
+        });
+        _context.ClientTrips.Add(new ClientTrip { IdClient = idC ,PaymentDate = clientDto.PaymentDate,
+            RegisteredAt = DateTime.Now, IdTrip = idTrip});
+        return Created();
     }
 }

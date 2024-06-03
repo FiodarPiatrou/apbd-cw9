@@ -16,5 +16,7 @@ public class ClientDTO
 
     public string Pesel { get; set; } = null!;
 
-    public virtual ICollection<ClientTrip> ClientTrips { get; set; } = new List<ClientTrip>();
+    public int IdTrip { get; set; }
+    public string TripName { get; set; } = null!;
+    public DateTime? PaymentDate { get; set; }
 }
